@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: o2a.java.serverless.ref.impl
+testFramework: junit
+sourceLanguage: java
+buildTool: maven
+features: [app-name, docker, file-watch, graalvm, http-client, java, java-application, junit, logback, maven, netty-server, readme, shade, yaml]
