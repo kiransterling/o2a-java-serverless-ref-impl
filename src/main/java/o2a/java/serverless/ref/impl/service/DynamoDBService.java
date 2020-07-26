@@ -1,74 +1,92 @@
 package o2a.java.serverless.ref.impl.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
-import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
-import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
-
 import o2a.java.serverless.ref.impl.model.Student;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
 @Singleton
 public class DynamoDBService {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DynamoDBService.class);
-	
-    //@Inject
-	//DynamoDBMapper mapper;
-	
-	private final DynamoDBMapper mapper;
 
-    public DynamoDBService(DynamoDBMapper mapper) {
-        this.mapper = mapper;
-    }
+	public DynamoDbClient dynamoDbClient;
 
-    
-    
-    public String insertIntoDynamoDB(Student student) {
-		mapper.save(student);
-		logger.info("Successfully inserted into DynamoDB table");
-		return "Successfully inserted into DynamoDB table";
-
+	public DynamoDBService(DynamoDbClient dynamoDbClient) {
+		this.dynamoDbClient = dynamoDbClient;
 	}
-    
-    public Student getOneStudentDetails(String studentId, String lastName) {
 
-		return mapper.load(Student.class, studentId, lastName);
-	}
-    
-    public void deleteStudentDetails(Student student) {
-		mapper.delete(student);
-	}
-    
-    public void updateStudentDetails(Student student) {
+	// Create a DynamoDbEnhancedClient and use the DynamoDbClient object
+	DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder().dynamoDbClient(dynamoDbClient).build();
+
+	public String putRecord(Student student) {
 		try {
-			mapper.save(student, buildDynamoDBSaveExpression(student));
-		} catch (ConditionalCheckFailedException exception) {
-			logger.error("invalid data - " + exception.getMessage());
+			// Create a DynamoDbTable object
+			DynamoDbTable<Student> studentTable = enhancedClient.table("Student", TableSchema.fromBean(Student.class));
+
+			// Put the customer data into a DynamoDB table
+			studentTable.putItem(student);
+			logger.info("Data inserted successfully");
+			return "Data inserted successfully";
+
+		} catch (DynamoDbException e) {
+			logger.error(e.getMessage());
+			return "Error inserting the record in the table : " + e.getMessage();
+
 		}
+
 	}
-    
-    public DynamoDBSaveExpression buildDynamoDBSaveExpression(Student student) {
-		DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression();
-		Map<String, ExpectedAttributeValue> expected = new HashMap<>();
-		expected.put("studentId", new ExpectedAttributeValue(new AttributeValue(student.getStudentId()))
-				.withComparisonOperator(ComparisonOperator.EQ));
-		saveExpression.setExpected(expected);
-		return saveExpression;
+
+	public String getRecord(String studentId, String lastName) {
+
+		try {
+			// Create a DynamoDbTable object
+			DynamoDbTable<Student> studentTable = enhancedClient.table("Student", TableSchema.fromBean(Student.class));
+
+			// Create a KEY object
+			Key key = Key.builder().partitionValue(studentId).sortValue(lastName).build();
+
+			// Get the item by using the key
+			Student result = studentTable.getItem(r -> r.key(key));
+			logger.info("Student first name is " + result.getFirstName());
+			return "Student first name is " + result.getFirstName();
+
+		} catch (DynamoDbException e) {
+			logger.error(e.getMessage());
+			return "Error getting data  from table : " + e.getMessage();
+
+		}
+
 	}
-    
-    
-    
-    
+
+	public String deleteRecord(String studentId, String lastName) {
+
+		try {
+			// Create a DynamoDbTable object
+			DynamoDbTable<Student> studentTable = enhancedClient.table("Student", TableSchema.fromBean(Student.class));
+
+			// Create a KEY object
+			Key key = Key.builder().partitionValue(studentId).sortValue(lastName).build();
+
+			// Get the item by using the key
+			Student result = studentTable.deleteItem(key);
+			logger.info("Student " + result.getFirstName() + " deleted successfully");
+			return "Student " + result.getFirstName() + " deleted successfully";
+
+		} catch (DynamoDbException e) {
+			logger.error("Error deleting studentId : "+e.getMessage());
+			return "Error deleting studentId : " + studentId + " , Error : " + e.getMessage();
+
+		}
+
+	}
 
 }
