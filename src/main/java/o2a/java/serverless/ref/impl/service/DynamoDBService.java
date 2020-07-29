@@ -16,9 +16,9 @@ import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 @Singleton
 public class DynamoDBService {
 
-	private static final Logger logger = LoggerFactory.getLogger(DynamoDBService.class);
+	public static final Logger logger = LoggerFactory.getLogger(DynamoDBService.class);
 
-	public DynamoDbClient dynamoDbClient;
+	private DynamoDbClient dynamoDbClient;
 
 	public DynamoDBService(DynamoDbClient dynamoDbClient) {
 		this.dynamoDbClient = dynamoDbClient;
