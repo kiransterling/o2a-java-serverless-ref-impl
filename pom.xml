@@ -15,7 +15,7 @@
 
 	<properties>
 		<jdk.version>1.8</jdk.version>
-		<aws-sdk-v2.version>2.13.60</aws-sdk-v2.version>
+		<aws-sdk-v1.version>1.11.832</aws-sdk-v1.version>
 		<maven.compiler.target>${jdk.version}</maven.compiler.target>
 		<maven.compiler.source>${jdk.version}</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -84,20 +84,21 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>software.amazon.awssdk</groupId>
-			<artifactId>dynamodb</artifactId>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-dynamodb</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>software.amazon.awssdk</groupId>
-			<artifactId>dynamodb-enhanced</artifactId>
-		</dependency>
+		<!-- <dependency>
+			<groupId>io.micronaut.aws</groupId>
+			<artifactId>micronaut-aws-sdk-v1</artifactId>
+			<version>2.0.0</version>
+		</dependency> -->
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>software.amazon.awssdk</groupId>
-				<artifactId>bom</artifactId>
-				<version>${aws-sdk-v2.version}</version>
+				<groupId>com.amazonaws</groupId>
+				<artifactId>aws-java-sdk-bom</artifactId>
+				<version>${aws-sdk-v1.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

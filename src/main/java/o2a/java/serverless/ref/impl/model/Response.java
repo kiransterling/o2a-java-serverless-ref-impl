@@ -15,9 +15,4 @@ public class Response {
 		this.message = message;
 	}
 
-	@Override
-	public String toString() {
-		return "Response [message=" + message + "]";
-	}
-	
 }

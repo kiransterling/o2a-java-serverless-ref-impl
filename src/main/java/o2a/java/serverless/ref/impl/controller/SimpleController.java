@@ -36,6 +36,7 @@ public class SimpleController {
 	@Get("/getOneStudentDetails/{studentId}/{lastName}")
 	public HttpResponse<Response> getOneStudentDetails(@PathVariable String studentId, @PathVariable String lastName) {
 
+		
 		resp.setMessage(dynamoDBService.getRecord(studentId, lastName));
         return HttpResponse.ok(resp).setAttribute("Content-Type", "application/json; charset=utf-8");
 		

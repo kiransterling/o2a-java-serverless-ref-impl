@@ -1,11 +1,11 @@
 package o2a.java.serverless.ref.impl.model;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
-
-@DynamoDbBean
+@DynamoDBTable(tableName = "Student")
 public class Student {
 
 	private String studentId;
@@ -13,7 +13,7 @@ public class Student {
 	private String lastName;
 	private int age;
 
-	@DynamoDbPartitionKey
+	@DynamoDBHashKey(attributeName = "studentId")
 	public String getStudentId() {
 		return studentId;
 	}
@@ -22,6 +22,7 @@ public class Student {
 		this.studentId = studentId;
 	}
 
+	@DynamoDBAttribute
 	public String getFirstName() {
 		return firstName;
 	}
@@ -30,7 +31,7 @@ public class Student {
 		this.firstName = firstName;
 	}
 
-	@DynamoDbSortKey
+	@DynamoDBRangeKey
 	public String getLastName() {
 		return lastName;
 	}
@@ -39,6 +40,7 @@ public class Student {
 		this.lastName = lastName;
 	}
 
+	@DynamoDBAttribute
 	public int getAge() {
 		return age;
 	}
@@ -46,5 +48,12 @@ public class Student {
 	public void setAge(int age) {
 		this.age = age;
 	}
+
+	@Override
+	public String toString() {
+		return "Student [studentId=" + studentId + ", firstName=" + firstName + ", lastName=" + lastName + ", age="
+				+ age + "]";
+	}
+
 
 }

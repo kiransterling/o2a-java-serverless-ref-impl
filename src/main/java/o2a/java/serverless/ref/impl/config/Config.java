@@ -1,8 +1,10 @@
 package o2a.java.serverless.ref.impl.config;
 
-import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 
@@ -11,12 +13,14 @@ import io.micronaut.context.annotation.Factory;
 public class Config {
 
 	@Bean
-	DynamoDbClient dynamoDbClient() {
+	AmazonDynamoDB amazonDynamoDB() {
+		
+		ProfileCredentialsProvider credentialsProvider = new ProfileCredentialsProvider();
 
-		Region region = Region.AP_NORTHEAST_2;
+		
 
-		return DynamoDbClient.builder().region(region)
-				.credentialsProvider(EnvironmentVariableCredentialsProvider.create()).build();
+		return AmazonDynamoDBClientBuilder.standard().withRegion("ap-southeast-2").withCredentials(credentialsProvider)
+				.build();
 
 	}
 
