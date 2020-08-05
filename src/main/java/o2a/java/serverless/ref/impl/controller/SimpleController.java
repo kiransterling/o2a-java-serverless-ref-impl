@@ -1,7 +1,5 @@
 package o2a.java.serverless.ref.impl.controller;
 
-
-import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
@@ -9,46 +7,42 @@ import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
-import o2a.java.serverless.ref.impl.model.Response;
 import o2a.java.serverless.ref.impl.model.Student;
-import o2a.java.serverless.ref.impl.service.DynamoDBService;
+import o2a.java.serverless.ref.impl.service.IDynamoDBService;
 
 @Controller("/api")
 public class SimpleController {
 
-	private DynamoDBService dynamoDBService;
+	private IDynamoDBService dynamoDBService;
 
-	public SimpleController(DynamoDBService dynamoDBService) {
+	public SimpleController(IDynamoDBService dynamoDBService) {
 		this.dynamoDBService = dynamoDBService;
 	}
-	
-	Response resp = new Response();
 
 	@Post(value = "/createStudent", consumes = MediaType.APPLICATION_JSON)
-	public HttpResponse<Response> createStudent(@Body Student student) {
+	public Student createStudent(@Body Student student) {
 
-		resp.setMessage(dynamoDBService.putRecord(student));
-        return HttpResponse.ok(resp).setAttribute("Content-Type", "application/json; charset=utf-8");
-		
+		return dynamoDBService.save(student);
 
 	}
 
 	@Get("/getOneStudentDetails/{studentId}/{lastName}")
-	public HttpResponse<Response> getOneStudentDetails(@PathVariable String studentId, @PathVariable String lastName) {
+	public Student getOneStudentDetails(@PathVariable String studentId, @PathVariable String lastName) {
 
-		
-		resp.setMessage(dynamoDBService.getRecord(studentId, lastName));
-        return HttpResponse.ok(resp).setAttribute("Content-Type", "application/json; charset=utf-8");
-		
+		return dynamoDBService.get(studentId, lastName);
 
 	}
 
 	@Delete("/deleteStudent/{studentId}/{lastName}")
-	public HttpResponse<Response> deleteStudent(@PathVariable String studentId, @PathVariable String lastName) {
+	public String deleteStudent(@PathVariable String studentId, @PathVariable String lastName) {
 
-		resp.setMessage(dynamoDBService.deleteRecord(studentId, lastName));
-        return HttpResponse.ok(resp).setAttribute("Content-Type", "application/json; charset=utf-8");
-		
+		Student studnt = new Student();
+		studnt.setStudentId(studentId);
+		studnt.setLastName(lastName);
+
+		dynamoDBService.delete(studnt);
+		return "Student deleted successfully";
+
 	}
 
 }

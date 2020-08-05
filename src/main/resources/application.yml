@@ -1,3 +1,7 @@
 micronaut:
   application:
     name: o2aJavaServerlessRefImpl
+    
+amazon:
+  region: ap-southeast-2  
+      
