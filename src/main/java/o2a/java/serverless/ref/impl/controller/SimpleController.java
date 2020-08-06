@@ -12,8 +12,11 @@ import o2a.java.serverless.ref.impl.service.IDynamoDBService;
 
 @Controller("/api")
 public class SimpleController {
+	
 
 	private IDynamoDBService dynamoDBService;
+	
+	
 
 	public SimpleController(IDynamoDBService dynamoDBService) {
 		this.dynamoDBService = dynamoDBService;
