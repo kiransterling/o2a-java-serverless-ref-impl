@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.DescribeTableRequest;
@@ -20,24 +22,32 @@ public class Utils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
-	public static String createTable(final AmazonDynamoDB client, final String tableName) {
+	public static String createTable(final AmazonDynamoDB client, final String tableName) throws InterruptedException {
 		List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
-		attributeDefinitions.add(new AttributeDefinition().withAttributeName("Id").withAttributeType("S"));
-		attributeDefinitions.add(new AttributeDefinition().withAttributeName("ExpireTimestamp").withAttributeType("N"));
+		attributeDefinitions.add(new AttributeDefinition().withAttributeName("studentId").withAttributeType("S"));
+		attributeDefinitions.add(new AttributeDefinition().withAttributeName("lastName").withAttributeType("S"));
+
 		List<KeySchemaElement> keySchema = new ArrayList<>();
-		keySchema.add(new KeySchemaElement().withAttributeName("Id").withKeyType(KeyType.HASH));
-		keySchema.add(new KeySchemaElement().withAttributeName("ExpireTimestamp").withKeyType(KeyType.RANGE));
+		keySchema.add(new KeySchemaElement().withAttributeName("studentId").withKeyType(KeyType.HASH));
+		keySchema.add(new KeySchemaElement().withAttributeName("lastName").withKeyType(KeyType.RANGE));
 		ProvisionedThroughput provisionedThroughput = new ProvisionedThroughput().withReadCapacityUnits(2L)
 				.withWriteCapacityUnits(2L);
-		CreateTableRequest createTableRequest;
-		createTableRequest = new CreateTableRequest().withTableName(tableName)
+
+		CreateTableRequest createTableRequest = new CreateTableRequest().withTableName(tableName)
 				.withAttributeDefinitions(attributeDefinitions).withKeySchema(keySchema)
 				.withProvisionedThroughput(provisionedThroughput);
+
+		DynamoDB dynamoDB = new DynamoDB(client);
+
+		Table table = dynamoDB.createTable(createTableRequest);
+
+		table.waitForActive();
+
 		LOGGER.info("Creating table {}", tableName);
 		if (!TableUtils.createTableIfNotExists(client, createTableRequest)) {
 			LOGGER.info("Table {} already exists. Nothing to do", tableName);
 		}
-		return describeTable(client, tableName).getTable().getLatestStreamArn();
+		return describeTable(client, tableName).getTable().getTableName();
 	}
 
 	public static DescribeTableResult describeTable(final AmazonDynamoDB client, final String tableName) {
