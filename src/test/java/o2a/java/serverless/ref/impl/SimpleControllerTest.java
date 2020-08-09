@@ -83,13 +83,13 @@ public class SimpleControllerTest {
 		student.setLastName("Smith");
 		student.setAge(35);
 		
-		//dynamoDBService.save(student);
+		dynamoDBService.save(student);
 
-		Student st = client.toBlocking().retrieve(HttpRequest.POST("/createStudent",student), Student.class);
+		//Student st = client.toBlocking().retrieve(HttpRequest.POST("/createStudent",student), Student.class);
 		
-        System.out.println(st.toString());
+        //System.out.println(st.toString());
         
-        st = client.toBlocking().retrieve(HttpRequest.GET("/getOneStudentDetails/1/Smith"), Student.class);
+        Student st = client.toBlocking().retrieve(HttpRequest.GET("/getOneStudentDetails/1/Smith"), Student.class);
 		
         System.out.println(st.toString());
         
