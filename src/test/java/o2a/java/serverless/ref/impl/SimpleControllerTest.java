@@ -33,10 +33,13 @@ public class SimpleControllerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleControllerTest.class);
 
-	public static ApplicationContext ctx;
+	//public static ApplicationContext ctx;
 
 	@Inject
 	EmbeddedServer server;
+	
+	@Inject
+	DynamoDBService dynamoDBService;
 
 	@Inject
 	@Client("/api")
@@ -45,62 +48,55 @@ public class SimpleControllerTest {
 	@BeforeAll
 	public static void setup() throws InterruptedException {
 
-		
-
 		AmazonDynamoDB amazonDynamoDB = TestUtils.getClientDynamoDB();
 
 		// Creating Student table
 		Utils.createTable(amazonDynamoDB, "Student");
 
-		ctx = ApplicationContext.build().build();
-	
-		ctx.registerSingleton(AmazonDynamoDB.class, amazonDynamoDB);
-
-		ctx.start();
+		/*
+		 * ctx = ApplicationContext.build().build();
+		 * 
+		 * ctx.registerSingleton(AmazonDynamoDB.class, amazonDynamoDB);
+		 * 
+		 * ctx.start();
+		 */
 	}
 
-	@AfterAll
-	public static void cleanup() {
-		
-		//Clean up Application context after the test
-		if (ctx != null) {
-			ctx.close();
-		}
-	}
+	/*
+	 * @AfterAll public static void cleanup() {
+	 * 
+	 * // Clean up Application context after the test if (ctx != null) {
+	 * ctx.close(); } }
+	 */
 
 	@Test
 	public void StudentTest() {
 
-		//Obtain the provider bean
-		DynamoDBServiceProvider provider = ctx.getBean(DynamoDBServiceProvider.class);
-		
-		//Obtain DynamoDBService for particular DynamoDB entity
-		DynamoDBService<Student> dynamoDBService = provider.findOrCreate(Student.class);
+		// Obtain the provider bean
+		//DynamoDBServiceProvider provider = ctx.getBean(DynamoDBServiceProvider.class);
+
+		// Obtain DynamoDBService for particular DynamoDB entity
+		//DynamoDBService<Student> dynamoDBService = provider.findOrCreate(Student.class);
 
 		Student student = new Student();
 		student.setStudentId("1");
 		student.setFirstName("Sam");
 		student.setLastName("Smith");
 		student.setAge(35);
-		
-		dynamoDBService.save(student);
 
-		//Student st = client.toBlocking().retrieve(HttpRequest.POST("/createStudent",student), Student.class);
-		
-        //System.out.println(st.toString());
-        
-        Student st = client.toBlocking().retrieve(HttpRequest.GET("/getOneStudentDetails/1/Smith"), Student.class);
-		
-        System.out.println(st.toString());
-        
-        String st1 = client.toBlocking().retrieve(HttpRequest.DELETE("/deleteStudent/1/Smith"), String.class);
-		
-        System.out.println(st1);
-		
-        
-        
+		// dynamoDBService.save(student);
 
-		
+		Student st = client.toBlocking().retrieve(HttpRequest.POST("/createStudent",student),Student.class);
+
+		// System.out.println(st.toString());
+
+		st = client.toBlocking().retrieve(HttpRequest.GET("/getOneStudentDetails/1/Smith"), Student.class);
+
+		System.out.println(st.toString());
+
+		String st1 = client.toBlocking().retrieve(HttpRequest.DELETE("/deleteStudent/1/Smith"), String.class);
+
+		System.out.println(st1);
 
 	}
 
