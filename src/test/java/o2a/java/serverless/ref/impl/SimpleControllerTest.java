@@ -33,9 +33,9 @@ public class SimpleControllerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleControllerTest.class);
 
-	public ApplicationContext ctx;
+	public static ApplicationContext ctx;
 
-	Student student;
+	static Student student;
 
 	@Inject
 	EmbeddedServer server;
@@ -44,12 +44,12 @@ public class SimpleControllerTest {
 	@Client("/api")
 	RxHttpClient client;
 
-	DynamoDBServiceProvider provider;
+	static DynamoDBServiceProvider provider;
 
-	DynamoDBService<Student> dynamoDBService;
+	static DynamoDBService<Student> dynamoDBService;
 
 	@BeforeAll
-	public void setup() throws InterruptedException {
+	public static void setup() throws InterruptedException {
 
 		AmazonDynamoDB amazonDynamoDB = TestUtils.getClientDynamoDB();
 
@@ -77,7 +77,7 @@ public class SimpleControllerTest {
 	}
 
 	@AfterAll
-	public void cleanup() {
+	public static void cleanup() {
 
 		// Clean up Application context after the test
 
@@ -93,7 +93,7 @@ public class SimpleControllerTest {
 		System.out.println(dynamoDBService.save(student).toString());
 
 		//Student st = client.toBlocking().retrieve(HttpRequest.POST("/createStudent", student), Student.class);
-        //System.out.println(st.toString());
+		//System.out.println(st.toString());
 
 	}
 
