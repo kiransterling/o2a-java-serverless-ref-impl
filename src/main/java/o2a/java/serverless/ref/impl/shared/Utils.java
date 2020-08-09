@@ -16,7 +16,6 @@ import com.amazonaws.services.dynamodbv2.model.DescribeTableResult;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import com.amazonaws.services.dynamodbv2.model.KeyType;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.amazonaws.services.dynamodbv2.util.TableUtils;
 
 public class Utils {
 
@@ -41,12 +40,10 @@ public class Utils {
 
 		Table table = dynamoDB.createTable(createTableRequest);
 
+		LOGGER.info("Creating table {}", tableName);
+
 		table.waitForActive();
 
-		LOGGER.info("Creating table {}", tableName);
-		if (!TableUtils.createTableIfNotExists(client, createTableRequest)) {
-			LOGGER.info("Table {} already exists. Nothing to do", tableName);
-		}
 		return describeTable(client, tableName).getTable().getTableName();
 	}
 

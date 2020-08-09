@@ -32,14 +32,6 @@ public class SimpleController {
 		return dynamoDBService.get(studentId, lastName);
 
 	}
-	
-	@Get("/hi")
-	public String getOne() {
-
-		return "hello";
-
-	}
-
 
 	@Delete("/deleteStudent/{studentId}/{lastName}")
 	public String deleteStudent(@PathVariable String studentId, @PathVariable String lastName) {

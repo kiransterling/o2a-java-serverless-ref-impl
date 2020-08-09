@@ -2,14 +2,11 @@ package o2a.java.serverless.ref.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.localstack.LocalStackContainer;
 
 import com.agorapulse.micronaut.aws.dynamodb.DynamoDBService;
 import com.agorapulse.micronaut.aws.dynamodb.DynamoDBServiceProvider;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
-import cloud.localstack.LocalstackTestRunner;
 import cloud.localstack.TestUtils;
 import cloud.localstack.docker.annotation.LocalstackDockerProperties;
 import io.micronaut.context.ApplicationContext;
@@ -23,17 +20,10 @@ import o2a.java.serverless.ref.impl.shared.Utils;
 
 import javax.inject.Inject;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.runner.RunWith;
 import cloud.localstack.docker.LocalstackDockerExtension;
 
 @MicronautTest(application = Application.class)
@@ -45,12 +35,6 @@ public class SimpleControllerTest {
 
 	public static ApplicationContext ctx;
 
-	/*
-	 * @Rule public static LocalStackContainer localstack = new
-	 * LocalStackContainer("latest")
-	 * .withServices(LocalStackContainer.Service.DYNAMODB);
-	 */
-	
 	@Inject
 	EmbeddedServer server;
 
@@ -61,23 +45,15 @@ public class SimpleControllerTest {
 	@BeforeAll
 	public static void setup() throws InterruptedException {
 
-		/*
-		 * AmazonDynamoDB amazonDynamoDB = AmazonDynamoDBClient.builder()
-		 * .withEndpointConfiguration(localstack.getEndpointConfiguration(
-		 * LocalStackContainer.Service.DYNAMODB))
-		 * .withCredentials(localstack.getDefaultCredentialsProvider()).build();
-		 */
 		
-		System.out.println("k");
+
 		AmazonDynamoDB amazonDynamoDB = TestUtils.getClientDynamoDB();
-				
-		System.out.println("k1");
-		
 
 		// Creating Student table
 		Utils.createTable(amazonDynamoDB, "Student");
 
 		ctx = ApplicationContext.build().build();
+	
 		ctx.registerSingleton(AmazonDynamoDB.class, amazonDynamoDB);
 
 		ctx.start();
@@ -85,6 +61,8 @@ public class SimpleControllerTest {
 
 	@AfterAll
 	public static void cleanup() {
+		
+		//Clean up Application context after the test
 		if (ctx != null) {
 			ctx.close();
 		}
@@ -93,7 +71,10 @@ public class SimpleControllerTest {
 	@Test
 	public void StudentTest() {
 
+		//Obtain the provider bean
 		DynamoDBServiceProvider provider = ctx.getBean(DynamoDBServiceProvider.class);
+		
+		//Obtain DynamoDBService for particular DynamoDB entity
 		DynamoDBService<Student> dynamoDBService = provider.findOrCreate(Student.class);
 
 		Student student = new Student();
@@ -101,15 +82,25 @@ public class SimpleControllerTest {
 		student.setFirstName("Sam");
 		student.setLastName("Smith");
 		student.setAge(35);
+		
+		//dynamoDBService.save(student);
 
-		String st = client.toBlocking().retrieve(HttpRequest.GET("/hi"), String.class);
-		System.out.println(st);
+		Student st = client.toBlocking().retrieve(HttpRequest.POST("/createStudent",student), Student.class);
+		
+        System.out.println(st.toString());
+        
+        st = client.toBlocking().retrieve(HttpRequest.GET("/getOneStudentDetails/1/Smith"), Student.class);
+		
+        System.out.println(st.toString());
+        
+        String st1 = client.toBlocking().retrieve(HttpRequest.DELETE("/deleteStudent/1/Smith"), String.class);
+		
+        System.out.println(st1);
+		
+        
+        
 
-		dynamoDBService.save(student);
-
-		dynamoDBService.get("1", "Smith");
-
-		dynamoDBService.delete(student);
+		
 
 	}
 
