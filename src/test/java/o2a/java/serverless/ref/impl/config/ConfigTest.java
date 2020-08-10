@@ -13,16 +13,17 @@ import io.micronaut.context.annotation.Primary;
 
 @Factory
 @LocalstackDockerProperties(services = { "dynamodb" })
-public class ConfigTest {
+public class ConfigTest extends Config{
 
 	@Primary
 	@Bean
+	@Override
 	public IDynamoDBMapper mapper(AmazonDynamoDB amazonDynamoDB, DynamoDBMapperConfig config) {
 		return new DynamoDBMapper(amazonDynamoDB, config);
 	}
 
 	@Primary
-	@Bean
+	@Bean	
 	public AmazonDynamoDB client() {
 		return TestUtils.getClientDynamoDB();
 	}
