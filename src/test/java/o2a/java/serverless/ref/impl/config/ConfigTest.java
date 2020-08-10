@@ -15,7 +15,7 @@ import io.micronaut.context.annotation.Requires;
 @Factory
 @LocalstackDockerProperties(services = { "dynamodb" })
 @Requires(env="test")
-public class ConfigTest extends Config{
+public class ConfigTest{
 
 	@Primary
 	@Bean
