@@ -1,24 +1,5 @@
 package o2a.java.serverless.ref.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.agorapulse.micronaut.aws.dynamodb.DynamoDBService;
-import com.agorapulse.micronaut.aws.dynamodb.DynamoDBServiceProvider;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-
-import cloud.localstack.TestUtils;
-import cloud.localstack.docker.annotation.LocalstackDockerProperties;
-import io.micronaut.context.ApplicationContext;
-import io.micronaut.http.HttpRequest;
-import io.micronaut.http.client.RxHttpClient;
-import io.micronaut.http.client.annotation.Client;
-import io.micronaut.runtime.server.EmbeddedServer;
-import io.micronaut.test.annotation.MicronautTest;
-import o2a.java.serverless.ref.impl.model.Student;
-import o2a.java.serverless.ref.impl.service.IDynamoDBService;
-import o2a.java.serverless.ref.impl.shared.Utils;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.inject.Inject;
@@ -27,11 +8,24 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.agorapulse.micronaut.aws.dynamodb.DynamoDBServiceProvider;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+
 import cloud.localstack.docker.LocalstackDockerExtension;
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.http.client.RxHttpClient;
+import io.micronaut.http.client.annotation.Client;
+import io.micronaut.runtime.server.EmbeddedServer;
+import io.micronaut.test.annotation.MicronautTest;
+import o2a.java.serverless.ref.impl.model.Student;
+import o2a.java.serverless.ref.impl.service.IDynamoDBService;
+import o2a.java.serverless.ref.impl.shared.Utils;
 
 @MicronautTest(application = Application.class)
 @ExtendWith(LocalstackDockerExtension.class)
-@LocalstackDockerProperties(services = { "dynamodb" })
 public class SimpleControllerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleControllerTest.class);
@@ -40,24 +34,26 @@ public class SimpleControllerTest {
 
 	static Student student;
 
-	// @Inject
-	// IDynamoDBService dynamoDBService;
+	@Inject
+	IDynamoDBService dynamoDBService;
 
 	@Inject
 	EmbeddedServer server;
+	
+	AmazonDynamoDB amazonDynamoDB;
 
 	@Inject
 	@Client("/api")
 	RxHttpClient client;
 
-	static DynamoDBServiceProvider provider;
+	DynamoDBServiceProvider provider;
 
-	static DynamoDBService<Student> dynamoDBService;
+//	DynamoDBService<Student> dynamoDBService;
 
 	@BeforeAll
-	public static void setup() throws InterruptedException {
+	public void setup() throws InterruptedException {
 
-		AmazonDynamoDB amazonDynamoDB = TestUtils.getClientDynamoDB();
+
 
 		// Creating Student table
 		Utils.createTable(amazonDynamoDB, "Student");
@@ -68,22 +64,24 @@ public class SimpleControllerTest {
 		student.setLastName("Smith");
 		student.setAge(35);
 
-		ctx = ApplicationContext.build().build();
-
-		ctx.registerSingleton(AmazonDynamoDB.class, amazonDynamoDB);
-
-		ctx.start();
-
-		// Obtain the provider bean
-		provider = ctx.getBean(DynamoDBServiceProvider.class);
+		/*
+		 * ctx = ApplicationContext.build().build();
+		 * 
+		 * ctx.registerSingleton(AmazonDynamoDB.class, amazonDynamoDB);
+		 * 
+		 * ctx.start();
+		 * 
+		 * // Obtain the provider bean provider =
+		 * ctx.getBean(DynamoDBServiceProvider.class);
+		 */
 
 		// Obtain DynamoDBService for particular DynamoDB entity
-		dynamoDBService = provider.findOrCreate(Student.class);
+		//dynamoDBService = provider.findOrCreate(Student.class);
 
 	}
 
 	@AfterAll
-	public static void cleanup() {
+	public void cleanup() {
 
 		// Clean up Application context after the test
         if (ctx != null) {
