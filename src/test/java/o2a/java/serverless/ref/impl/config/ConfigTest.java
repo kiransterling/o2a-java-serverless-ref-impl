@@ -10,14 +10,15 @@ import cloud.localstack.docker.annotation.LocalstackDockerProperties;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Primary;
+import io.micronaut.context.annotation.Requires;
 
 @Factory
 @LocalstackDockerProperties(services = { "dynamodb" })
+@Requires(env="test")
 public class ConfigTest extends Config{
 
 	@Primary
 	@Bean
-	@Override
 	public IDynamoDBMapper mapper(AmazonDynamoDB amazonDynamoDB, DynamoDBMapperConfig config) {
 		return new DynamoDBMapper(amazonDynamoDB, config);
 	}
