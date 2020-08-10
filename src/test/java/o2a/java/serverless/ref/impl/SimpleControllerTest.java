@@ -7,6 +7,8 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,7 @@ import o2a.java.serverless.ref.impl.shared.Utils;
 
 @MicronautTest(application = Application.class)
 @ExtendWith(LocalstackDockerExtension.class)
+@TestInstance(Lifecycle.PER_CLASS)
 public class SimpleControllerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleControllerTest.class);
@@ -40,18 +43,18 @@ public class SimpleControllerTest {
 	@Inject
 	EmbeddedServer server;
 	
-	static AmazonDynamoDB amazonDynamoDB;
+	AmazonDynamoDB amazonDynamoDB;
 
 	@Inject
 	@Client("/api")
 	RxHttpClient client;
 
-	static DynamoDBServiceProvider provider;
+	DynamoDBServiceProvider provider;
 
 //	DynamoDBService<Student> dynamoDBService;
 
 	@BeforeAll
-	public static void  setup() throws InterruptedException {
+	public void  setup() throws InterruptedException {
 
 
 
