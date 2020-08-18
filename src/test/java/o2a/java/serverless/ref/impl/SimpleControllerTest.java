@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -17,7 +16,6 @@ import com.agorapulse.micronaut.aws.dynamodb.DynamoDBServiceProvider;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 
 import cloud.localstack.docker.LocalstackDockerExtension;
-import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.runtime.server.EmbeddedServer;
@@ -33,7 +31,7 @@ public class SimpleControllerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleControllerTest.class);
 
-	//public static ApplicationContext ctx;
+	// public static ApplicationContext ctx;
 
 	static Student student;
 
@@ -42,21 +40,21 @@ public class SimpleControllerTest {
 
 	@Inject
 	EmbeddedServer server;
-	
+
+	@Inject
 	AmazonDynamoDB amazonDynamoDB;
 
 	@Inject
 	@Client("/api")
 	RxHttpClient client;
 
+	@Inject
 	DynamoDBServiceProvider provider;
 
 //	DynamoDBService<Student> dynamoDBService;
 
 	@BeforeAll
-	public void  setup() throws InterruptedException {
-
-
+	public void setup() throws InterruptedException {
 
 		// Creating Student table
 		Utils.createTable(amazonDynamoDB, "Student");
@@ -79,7 +77,7 @@ public class SimpleControllerTest {
 		 */
 
 		// Obtain DynamoDBService for particular DynamoDB entity
-		//dynamoDBService = provider.findOrCreate(Student.class);
+		// dynamoDBService = provider.findOrCreate(Student.class);
 
 	}
 
@@ -95,40 +93,45 @@ public class SimpleControllerTest {
 	@Test
 	public void saveStudentTest() {
 
-		Student st=dynamoDBService.save(student);
-		
-		assertEquals("1",st.getStudentId());
-		assertEquals("Sam",st.getFirstName());
-		assertEquals("Smith",st.getLastName());
-		assertEquals(35,st.getAge());
+		Student st = dynamoDBService.save(student);
 
-		//Student st = client.toBlocking().retrieve(HttpRequest.POST("/createStudent", student), Student.class);
-		//System.out.println(st.toString());
+		assertEquals("1", st.getStudentId());
+		assertEquals("Sam", st.getFirstName());
+		assertEquals("Smith", st.getLastName());
+		assertEquals(35, st.getAge());
+
+		// Student st = client.toBlocking().retrieve(HttpRequest.POST("/createStudent",
+		// student), Student.class);
+		// System.out.println(st.toString());
 
 	}
 
 	@Test
 	public void getOneStudentTest() {
 
-		Student st=dynamoDBService.get(student.getStudentId(),student.getLastName());
+		Student st = dynamoDBService.get(student.getStudentId(), student.getLastName());
 
-		assertEquals("1",st.getStudentId());
-		assertEquals("Sam",st.getFirstName());
-		assertEquals("Smith",st.getLastName());
-		assertEquals(35,st.getAge());
-		
-		//Student st = client.toBlocking().retrieve(HttpRequest.GET("/getOneStudentDetails/1/Smith"), Student.class);
-		//System.out.println(st.toString());
+		assertEquals("1", st.getStudentId());
+		assertEquals("Sam", st.getFirstName());
+		assertEquals("Smith", st.getLastName());
+		assertEquals(35, st.getAge());
+
+		// Student st =
+		// client.toBlocking().retrieve(HttpRequest.GET("/getOneStudentDetails/1/Smith"),
+		// Student.class);
+		// System.out.println(st.toString());
 
 	}
 
 	@Test
 	public void deleteStudentTest() {
 
-	     dynamoDBService.delete(student);
+		dynamoDBService.delete(student);
 
-		//String st = client.toBlocking().retrieve(HttpRequest.DELETE("/deleteStudent/1/Smith"), String.class);
-		//System.out.println(st);
+		// String st =
+		// client.toBlocking().retrieve(HttpRequest.DELETE("/deleteStudent/1/Smith"),
+		// String.class);
+		// System.out.println(st);
 
 	}
 
