@@ -67,7 +67,7 @@ public class SimpleControllerTest {
 		// dynamoDBService = ctx.getBean(IDynamoDBService.class);
 		// amazonDynamoDB = ctx.getBean(AmazonDynamoDB.class);
 		// provider = ctx.getBean(DynamoDBServiceProvider.class);
-		LOGGER.info("amazonDynamoDB = " + amazonDynamoDB);
+		
 		// Creating Student table
 		// Utils.createTable(amazonDynamoDB, "Student");
 
@@ -77,8 +77,8 @@ public class SimpleControllerTest {
 		student.setLastName("Smith");
 		student.setAge(35);
 
-		when(dynamoDBService.save(student)).thenReturn(student);
-		when(dynamoDBService.get("1", "Smith")).thenReturn(student);
+		
+		
 
 		/*
 		 * ctx = ApplicationContext.build().build();
@@ -107,7 +107,7 @@ public class SimpleControllerTest {
 
 	@Test
 	public void saveStudentTest() {
-
+		when(dynamoDBService.save(student)).thenReturn(student);
 		Student st = client.toBlocking().retrieve(HttpRequest.POST("/createStudent", student), Student.class);
 		verify(dynamoDBService).save(student);
 
@@ -115,7 +115,7 @@ public class SimpleControllerTest {
 
 	@Test
 	public void getOneStudentTest() {
-
+		when(dynamoDBService.get("1", "Smith")).thenReturn(student);
 		Student st = client.toBlocking().retrieve(HttpRequest.GET("/getOneStudentDetails/1/Smith"), Student.class);
 		verify(dynamoDBService).get("1", "Smith");
 
