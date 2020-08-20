@@ -1,24 +1,18 @@
-package o2a.java.serverless.ref.impl;
+package o2a.java.serverless.ref.impl.controller;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.net.MalformedURLException;
+
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.agorapulse.micronaut.aws.dynamodb.DynamoDBServiceProvider;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-
-import cloud.localstack.docker.LocalstackDockerExtension;
-import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
@@ -28,31 +22,31 @@ import io.micronaut.test.annotation.MockBean;
 import o2a.java.serverless.ref.impl.model.Student;
 import o2a.java.serverless.ref.impl.service.IDynamoDBService;
 
-@MicronautTest(application = Application.class)
-@ExtendWith(LocalstackDockerExtension.class)
-@TestInstance(Lifecycle.PER_CLASS)
+@MicronautTest
+//@ExtendWith(LocalstackDockerExtension.class)
 public class SimpleControllerTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleControllerTest.class);
 
-	@Inject
-	private ApplicationContext ctx;
+	// @Inject
+	// private ApplicationContext ctx;
 
 	Student student;
 
+	@Inject
 	private IDynamoDBService dynamoDBService;
 
 	@Inject
 	EmbeddedServer server;
 
-	private AmazonDynamoDB amazonDynamoDB;
+	// private AmazonDynamoDB amazonDynamoDB;
 
 	@Inject
-	@Client("/api")
+	@Client("/student")
 	RxHttpClient client;
 
-	@Inject
-	private DynamoDBServiceProvider provider;
+	// @Inject
+	// private DynamoDBServiceProvider provider;
 
 //	DynamoDBService<Student> dynamoDBService;
 
@@ -61,24 +55,17 @@ public class SimpleControllerTest {
 		return mock(IDynamoDBService.class);
 	}
 
-	@BeforeAll
-	public void setup() throws InterruptedException {
+	private Student getTestStudentData() {
 
-		// dynamoDBService = ctx.getBean(IDynamoDBService.class);
-		// amazonDynamoDB = ctx.getBean(AmazonDynamoDB.class);
-		// provider = ctx.getBean(DynamoDBServiceProvider.class);
-		
-		// Creating Student table
-		// Utils.createTable(amazonDynamoDB, "Student");
-
+		if (student != null)
+			return student;
 		student = new Student();
 		student.setStudentId("1");
 		student.setFirstName("Sam");
 		student.setLastName("Smith");
 		student.setAge(35);
 
-		
-		
+		return student;
 
 		/*
 		 * ctx = ApplicationContext.build().build();
@@ -105,27 +92,27 @@ public class SimpleControllerTest {
 	 * }
 	 */
 
-	@Test
-	public void saveStudentTest() {
-		when(dynamoDBService.save(student)).thenReturn(student);
-		Student st = client.toBlocking().retrieve(HttpRequest.POST("/createStudent", student), Student.class);
-		verify(dynamoDBService).save(student);
+	//@Test
+	public void saveStudentTest()  throws MalformedURLException {		
+		//when(dynamoDBService.save(getTestStudentData())).thenReturn(getTestStudentData());
+		client.toBlocking().exchange(HttpRequest.POST("/add", getTestStudentData()), Student.class);
+		verify(dynamoDBService).save(getTestStudentData());
 
 	}
 
 	@Test
-	public void getOneStudentTest() {
-		when(dynamoDBService.get("1", "Smith")).thenReturn(student);
+	public void getOneStudentTest() throws MalformedURLException {
+		when(dynamoDBService.get("1", "Smith")).thenReturn(getTestStudentData());
 		Student st = client.toBlocking().retrieve(HttpRequest.GET("/getOneStudentDetails/1/Smith"), Student.class);
 		verify(dynamoDBService).get("1", "Smith");
 
 	}
 
 	@Test
-	public void deleteStudentTest() {
-
+	public void deleteStudentTest() throws MalformedURLException {
 		String st = client.toBlocking().retrieve(HttpRequest.DELETE("/deleteStudent/1/Smith"), String.class);
-		verify(dynamoDBService).delete(student);
+
+		Assertions.assertEquals("Student deleted successfully", st);
 
 	}
 

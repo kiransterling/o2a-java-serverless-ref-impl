@@ -13,6 +13,9 @@ public class Student {
 	private String lastName;
 	private int age;
 
+	public Student() {
+	}
+	
 	@DynamoDBHashKey(attributeName = "studentId")
 	public String getStudentId() {
 		return studentId;
