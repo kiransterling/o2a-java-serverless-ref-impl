@@ -74,21 +74,20 @@ public class SimpleControllerTestWithLocalStack {
 		DynamoDBServiceProvider provider = ctx.getBean(DynamoDBServiceProvider.class);
 		DynamoDBService<Student> student = provider.findOrCreate(Student.class);
 		IDynamoDBService dbService = ctx.getBean(IDynamoDBService.class);
-		
+
 		Student studentObj = new Student();
 		studentObj.setStudentId("1");
 		studentObj.setFirstName("Sam");
 		studentObj.setLastName("Smith");
 		studentObj.setAge(35);
-		
+
 		studentObj = dbService.save(studentObj);
-		
-		System.out.println("studentObj = " + studentObj );
-		
-		
-		Student st = client.toBlocking().retrieve(HttpRequest.GET("/getOneStudentDetails/1/Smith"), Student.class);
-		
+
+		System.out.println("studentObj = " + studentObj);
+
+		Student st = dbService.get("1", "Smith");
+
 		Assertions.assertEquals("Sam", st.getFirstName());
-        		
+
 	}
 }
