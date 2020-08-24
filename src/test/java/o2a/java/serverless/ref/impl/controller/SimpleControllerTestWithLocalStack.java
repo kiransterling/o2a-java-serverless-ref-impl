@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import org.junit.After;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -47,6 +48,7 @@ public class SimpleControllerTestWithLocalStack {
 	public LocalStackContainer localstack = new LocalStackContainer()
 			.withServices(LocalStackContainer.Service.DYNAMODB);
 
+	@BeforeEach
 	public void setup() {
 		AmazonDynamoDB amazonDynamoDB = AmazonDynamoDBClient.builder()
 				.withEndpointConfiguration(localstack.getEndpointConfiguration(LocalStackContainer.Service.DYNAMODB))
