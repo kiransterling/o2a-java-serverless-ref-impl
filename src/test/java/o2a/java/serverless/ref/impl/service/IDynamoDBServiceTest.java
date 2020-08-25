@@ -1,6 +1,4 @@
-package o2a.java.serverless.ref.impl.controller;
-
-import javax.inject.Inject;
+package o2a.java.serverless.ref.impl.service;
 
 import org.junit.After;
 import org.junit.jupiter.api.Assertions;
@@ -18,31 +16,14 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.IDynamoDBMapper;
 
 import io.micronaut.context.ApplicationContext;
-import io.micronaut.http.HttpRequest;
-import io.micronaut.http.client.RxHttpClient;
-import io.micronaut.http.client.annotation.Client;
-import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MicronautTest;
 import o2a.java.serverless.ref.impl.model.Student;
-import o2a.java.serverless.ref.impl.service.IDynamoDBService;
 
 @MicronautTest
 @Testcontainers
-public class SimpleControllerTestWithLocalStack {
+public class IDynamoDBServiceTest {
 
 	public ApplicationContext ctx;
-
-	@Inject
-	private IDynamoDBService dynamoDBService;
-
-	@Inject
-	EmbeddedServer server;
-
-	// private AmazonDynamoDB amazonDynamoDB;
-
-	@Inject
-	@Client("/student")
-	RxHttpClient client;
 
 	@Container
 	public LocalStackContainer localstack = new LocalStackContainer()
@@ -70,7 +51,27 @@ public class SimpleControllerTestWithLocalStack {
 	}
 
 	@Test
-	public void testSomething() {
+	public void testSave() {
+		DynamoDBServiceProvider provider = ctx.getBean(DynamoDBServiceProvider.class);
+		DynamoDBService<Student> student = provider.findOrCreate(Student.class);
+		IDynamoDBService dbService = ctx.getBean(IDynamoDBService.class);
+
+		Student studentObj = new Student();
+		studentObj.setStudentId("1");
+		studentObj.setFirstName("Sam");
+		studentObj.setLastName("Smith");
+		studentObj.setAge(35);
+
+		studentObj = dbService.save(studentObj);
+
+		System.out.println("studentObj = " + studentObj);
+
+		Assertions.assertEquals("Sam", studentObj.getFirstName());
+
+	}
+
+	@Test
+	public void testGet() {
 		DynamoDBServiceProvider provider = ctx.getBean(DynamoDBServiceProvider.class);
 		DynamoDBService<Student> student = provider.findOrCreate(Student.class);
 		IDynamoDBService dbService = ctx.getBean(IDynamoDBService.class);
@@ -88,6 +89,30 @@ public class SimpleControllerTestWithLocalStack {
 		Student st = dbService.get("1", "Smith");
 
 		Assertions.assertEquals("Sam", st.getFirstName());
+
+	}
+
+	@Test
+	public void testDelete() {
+		DynamoDBServiceProvider provider = ctx.getBean(DynamoDBServiceProvider.class);
+		DynamoDBService<Student> student = provider.findOrCreate(Student.class);
+		IDynamoDBService dbService = ctx.getBean(IDynamoDBService.class);
+
+		Student studentObj = new Student();
+		studentObj.setStudentId("1");
+		studentObj.setFirstName("Sam");
+		studentObj.setLastName("Smith");
+		studentObj.setAge(35);
+
+		studentObj = dbService.save(studentObj);
+
+		System.out.println("studentObj = " + studentObj);
+
+		dbService.delete(studentObj);
+
+		Student st = dbService.get("1", "Smith");
+
+		Assertions.assertEquals(st, null);
 
 	}
 }
